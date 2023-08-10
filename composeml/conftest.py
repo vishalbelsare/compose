@@ -20,7 +20,7 @@ def transactions():
             "2019-01-01 11:30:00,1,2",
             "2019-01-01 12:00:00,1,2",
             "2019-01-01 12:30:00,1,3",
-        ]
+        ],
     )
     return df
 
@@ -63,7 +63,7 @@ def total_spent():
     kwargs = {
         "data": data,
         "target_columns": ["total_spent"],
-        "target_dataframe_name": "customer_id",
+        "target_dataframe_index": "customer_id",
         "search_settings": {
             "num_examples_per_instance": -1,
         },
@@ -108,7 +108,7 @@ def labels():
     values = LabelTimes(
         values,
         target_columns=["my_labeling_function"],
-        target_dataframe_name="customer_id",
+        target_dataframe_index="customer_id",
     )
     return values
 

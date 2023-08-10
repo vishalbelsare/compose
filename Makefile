@@ -8,22 +8,21 @@ clean:
 
 .PHONY: lint
 lint:
-	isort --check-only composeml/
-	black composeml/ -t py310 --check
-	flake8 composeml/
+	black . --check --config=./pyproject.toml
+	ruff . --config=./pyproject.toml
 
 .PHONY: lint-fix
 lint-fix:
-	black -t py310 composeml/
-	isort composeml/
+	black . --config=./pyproject.toml
+	ruff . --fix --config=./pyproject.toml
 
 .PHONY: test
 test:
-	pytest composeml/
+	python -m pytest composeml/ -n auto
 
 .PHONY: testcoverage
 testcoverage:
-	pytest composeml/ --cov=composeml
+	python -m pytest composeml/ --cov=composeml -n auto
 
 .PHONY: installdeps
 installdeps: upgradepip
@@ -32,7 +31,7 @@ installdeps: upgradepip
 .PHONY: checkdeps
 checkdeps:
 	$(eval allow_list='matplotlib|pandas|seaborn|woodwork|featuretools|evalml|tqdm')
-	pip freeze | grep -v "alteryx/compose.git" | grep -E $(allow_list) > $(OUTPUT_PATH)
+	pip freeze | grep -v "alteryx/compose.git" | grep -E $(allow_list) > $(OUTPUT_FILEPATH)
 
 .PHONY: upgradepip
 upgradepip:
@@ -42,9 +41,13 @@ upgradepip:
 upgradebuild:
 	python -m pip install --upgrade build
 
-.PHONY: package_compose
-package_compose: upgradepip upgradebuild
+.PHONY: upgradesetuptools
+upgradesetuptools:
+	python -m pip install --upgrade setuptools
+
+.PHONY: package
+package: upgradepip upgradebuild upgradesetuptools
 	python -m build
-	$(eval COMPOSE_VERSION := $(shell grep '__version__\s=' composeml/version.py | grep -o '[^ ]*$$'))
-	tar -zxvf "dist/composeml-${COMPOSE_VERSION}.tar.gz"
-	mv "composeml-${COMPOSE_VERSION}" unpacked_sdist
+	$(eval PACKAGE=$(shell python -c 'import setuptools; setuptools.setup()' --version))
+	tar -zxvf "dist/composeml-${PACKAGE}.tar.gz"
+	mv "composeml-${PACKAGE}" unpacked_sdist

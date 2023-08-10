@@ -1,6 +1,7 @@
 from sys import stdout
 
 from pandas import Series
+from pandas.api.types import is_categorical_dtype
 from tqdm import tqdm
 
 from composeml.data_slice import DataSliceGenerator
@@ -13,7 +14,7 @@ class LabelMaker:
 
     def __init__(
         self,
-        target_dataframe_name,
+        target_dataframe_index,
         time_index,
         labeling_function=None,
         window_size=None,
@@ -21,7 +22,7 @@ class LabelMaker:
         """Creates an instance of label maker.
 
         Args:
-            target_dataframe_name (str): Dataframe on which to make labels.
+            target_dataframe_index (str): The index of the target dataframe, from which labels will be created.
             time_index (str): Name of time column in the data frame.
             labeling_function (function or list(function) or dict(str=function)): Function, list of functions, or dictionary of functions that transform a data slice.
                 When set as a dictionary, the key is used as the name of the labeling function.
@@ -29,7 +30,7 @@ class LabelMaker:
                 As an integer, the value can be the number of rows. Default value is all future data.
         """
         self.labeling_function = labeling_function or {}
-        self.target_dataframe_name = target_dataframe_name
+        self.target_dataframe_index = target_dataframe_index
         self.time_index = time_index
         self.window_size = window_size
 
@@ -66,7 +67,7 @@ class LabelMaker:
         if isinstance(value, (tuple, list)):
             value = {
                 self._name_labeling_function(function): self._check_labeling_function(
-                    function
+                    function,
                 )
                 for function in value
             }
@@ -111,9 +112,9 @@ class LabelMaker:
         """
         self._check_example_count(num_examples_per_instance, gap)
         df = self.set_index(df)
-        target_groups = df.groupby(self.target_dataframe_name)
+        target_groups = df.groupby(self.target_dataframe_index)
         num_examples_per_instance = ExampleSearch._check_number(
-            num_examples_per_instance
+            num_examples_per_instance,
         )
 
         minimum_data = self._check_cutoff_time(minimum_data)
@@ -136,7 +137,7 @@ class LabelMaker:
             )
 
             for ds in generator(df):
-                setattr(ds.context, self.target_dataframe_name, group_key)
+                setattr(ds.context, self.target_dataframe_index, group_key)
                 yield ds
 
                 if ds.context.slice_number >= num_examples_per_instance:
@@ -148,7 +149,7 @@ class LabelMaker:
         value = "Elapsed: {elapsed} | "
         value += "Remaining: {remaining} | "
         value += "Progress: {l_bar}{bar}| "
-        value += self.target_dataframe_name + ": {n}/{total} "
+        value += self.target_dataframe_index + ": {n}/{total} "
         return value
 
     def _check_example_count(self, num_examples_per_instance, gap):
@@ -196,7 +197,7 @@ class LabelMaker:
         self._check_example_count(num_examples_per_instance, gap)
         is_label_search = isinstance(num_examples_per_instance, dict)
         search = (LabelSearch if is_label_search else ExampleSearch)(
-            num_examples_per_instance
+            num_examples_per_instance,
         )
 
         # check minimum data cutoff time
@@ -205,7 +206,12 @@ class LabelMaker:
 
         df = self.set_index(df)
         total = search.expected_count if search.is_finite else 1
-        target_groups = df.groupby(self.target_dataframe_name)
+        # If the target is categorical, make sure there are no unused categories
+        if is_categorical_dtype(df[self.target_dataframe_index]):
+            df[self.target_dataframe_index] = df[
+                self.target_dataframe_index
+            ].cat.remove_unused_categories()
+        target_groups = df.groupby(self.target_dataframe_index)
         total *= target_groups.ngroups
 
         progress_bar = tqdm(
@@ -233,7 +239,7 @@ class LabelMaker:
             )
 
             for ds in generator(df):
-                setattr(ds.context, self.target_dataframe_name, group_key)
+                setattr(ds.context, self.target_dataframe_index, group_key)
 
                 items = self.labeling_function.items()
                 labels = {name: lf(ds, *args, **kwargs) for name, lf in items}
@@ -243,10 +249,10 @@ class LabelMaker:
 
                 records.append(
                     {
-                        self.target_dataframe_name: group_key,
+                        self.target_dataframe_index: group_key,
                         "time": ds.context.slice_start,
                         **labels,
-                    }
+                    },
                 )
 
                 search.update_count(labels)
@@ -259,11 +265,11 @@ class LabelMaker:
             # if finite search, update progress bar for missing examples
             if search.is_finite:
                 progress_bar.update(
-                    n=group_count * search.expected_count - progress_bar.n
+                    n=group_count * search.expected_count - progress_bar.n,
                 )
             else:
                 progress_bar.update(
-                    n=1
+                    n=1,
                 )  # otherwise, update progress bar once for each group
             search.reset_count()
 
@@ -274,7 +280,7 @@ class LabelMaker:
         lt = LabelTimes(
             data=records,
             target_columns=list(self.labeling_function),
-            target_dataframe_name=self.target_dataframe_name,
+            target_dataframe_index=self.target_dataframe_index,
             search_settings={
                 "num_examples_per_instance": num_examples_per_instance,
                 "minimum_data": minimum_data,

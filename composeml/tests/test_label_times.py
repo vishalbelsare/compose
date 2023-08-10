@@ -55,6 +55,7 @@ def test_sorted_distribution(capsys, total_spent):
         [
             "Label Distribution",
             "------------------",
+            "total_spent",
             "(0, 5]      5",
             "(5, 10]     4",
             "(10, 20]    0",
@@ -65,7 +66,7 @@ def test_sorted_distribution(capsys, total_spent):
             "--------",
             "num_examples_per_instance             -1",
             "target_column                total_spent",
-            "target_dataframe_name        customer_id",
+            "target_dataframe_index       customer_id",
             "target_type                     discrete",
             "",
             "",
@@ -79,9 +80,8 @@ def test_sorted_distribution(capsys, total_spent):
             "  - right:                  True",
             "",
             "",
-        ]
+        ],
     )
-
     assert captured.out == out
 
 
@@ -105,9 +105,9 @@ def test_describe_no_transforms(capsys):
             "",
             "Settings",
             "--------",
-            "target_column                target",
-            "target_dataframe_name          None",
-            "target_type              continuous",
+            "target_column                 target",
+            "target_dataframe_index          None",
+            "target_type               continuous",
             "",
             "",
             "Transforms",
@@ -115,7 +115,7 @@ def test_describe_no_transforms(capsys):
             "No transforms applied",
             "",
             "",
-        ]
+        ],
     )
 
     assert captured.out == out

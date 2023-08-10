@@ -7,7 +7,7 @@ Whether you are a novice or experienced software developer, all contributions an
 There are many ways to contribute to Compose, with the most common ones being contribution of code or documentation to the project.
 
 **To contribute, you can:**
-1. Help users on our [Slack channel](https://join.slack.com/t/alteryx-oss/shared_invite/zt-6inxevps-RSbpr9lsACE1kObXz4rIuA). Answer questions under the compose tag on [Stack Overflow](https://stackoverflow.com/questions/tagged/composeml)
+1. Help users on our [Slack channel](https://join.slack.com/t/alteryx-oss/shared_invite/zt-182tyvuxv-NzIn6eiCEf8TBziuKp0bNA). Answer questions under the compose tag on [Stack Overflow](https://stackoverflow.com/questions/tagged/composeml)
 
 2. Submit a pull request for one of [Good First Issues](https://github.com/alteryx/compose/issues?q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22)
 
@@ -21,7 +21,7 @@ There are many ways to contribute to Compose, with the most common ones being co
 
 ## Contributing to the Codebase
 
-Before starting major work, you should touch base with the maintainers of Compose by filing an issue on GitHub or posting a message in the [#development channel on Slack](https://join.slack.com/t/alteryx-oss/shared_invite/zt-6inxevps-RSbpr9lsACE1kObXz4rIuA). This will increase the likelihood your pull request will eventually get merged in.
+Before starting major work, you should touch base with the maintainers of Compose by filing an issue on GitHub or posting a message in the [#development channel on Slack](https://join.slack.com/t/alteryx-oss/shared_invite/zt-182tyvuxv-NzIn6eiCEf8TBziuKp0bNA). This will increase the likelihood your pull request will eventually get merged in.
 
 #### 1. Fork and clone repo
 * The code is hosted on GitHub, so you will need to use Git to fork the project and make changes to the codebase. To start, go to the [Compose GitHub page](https://github.com/alteryx/compose) and click the `Fork` button.

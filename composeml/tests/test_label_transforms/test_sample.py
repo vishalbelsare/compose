@@ -103,20 +103,20 @@ def test_single_target(total_spent):
 def test_sample_n_per_instance():
     data = read_csv(
         [
-            "target_dataframe_name,labels",
+            "target_dataframe_index,labels",
             "0,a",
             "0,b",
             "1,a",
             "1,b",
-        ]
+        ],
     )
 
-    lt = LabelTimes(data=data, target_dataframe_name="target_dataframe_name")
+    lt = LabelTimes(data=data, target_dataframe_index="target_dataframe_index")
     sample = lt.sample(n={"a": 1}, per_instance=True, random_state=0)
     actual = to_csv(sample, index=False)
 
     expected = [
-        "target_dataframe_name,labels",
+        "target_dataframe_index,labels",
         "0,a",
         "1,a",
     ]
@@ -127,22 +127,22 @@ def test_sample_n_per_instance():
 def test_sample_frac_per_instance():
     data = read_csv(
         [
-            "target_dataframe_name,labels",
+            "target_dataframe_index,labels",
             "0,a",
             "0,a",
             "0,a",
             "0,a",
             "1,a",
             "1,a",
-        ]
+        ],
     )
 
-    lt = LabelTimes(data=data, target_dataframe_name="target_dataframe_name")
+    lt = LabelTimes(data=data, target_dataframe_index="target_dataframe_index")
     sample = lt.sample(frac={"a": 0.5}, per_instance=True, random_state=0)
     actual = to_csv(sample, index=False)
 
     expected = [
-        "target_dataframe_name,labels",
+        "target_dataframe_index,labels",
         "0,a",
         "0,a",
         "1,a",
